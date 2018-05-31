@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SpeechCorrection</string>
+    <string name="menu_option_speech">Speech</string>
+    <string name="say_something">Say Something!</string>
+</resources>
