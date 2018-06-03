@@ -1,5 +1,6 @@
 package me.sparker0i.speechcorrection
 
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
@@ -10,14 +11,19 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import java.util.*
+import android.R.attr.data
+import android.widget.TextView
+
 
 class MainActivity : AppCompatActivity() {
 
     val REQ_CODE_SPEECH_INPUT = 100
+    var output: TextView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        output = findViewById(R.id.output)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -46,5 +52,18 @@ class MainActivity : AppCompatActivity() {
             val parentLayout = findViewById<View>(android.R.id.content)
             Snackbar.make(parentLayout , "Speech Recognition is not supported on your system" , Snackbar.LENGTH_SHORT)
         }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        when (requestCode) {
+            REQ_CODE_SPEECH_INPUT ->
+                    if (resultCode == Activity.RESULT_OK && null != data) {
+                        val result = data
+                                .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                        output!!.text = result[0]
+
+                    }
+        }
+        super.onActivityResult(requestCode, resultCode, data)
     }
 }
