@@ -1,4 +1,4 @@
-package me.sparker0i.speechcorrection
+package me.sparker0i.speechcorrection.activity
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
@@ -11,24 +11,45 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import java.util.*
-import android.R.attr.data
 import android.util.Log
 import android.widget.TextView
+import me.sparker0i.speechcorrection.R
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import kotlin.collections.ArrayList
 
 
 class MainActivity : AppCompatActivity() {
 
     val REQ_CODE_SPEECH_INPUT = 100
     var output: TextView? = null
+    var isDictionaryRead = false
+    lateinit var wordslist : ArrayList<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         output = findViewById(R.id.output)
+        wordslist = ArrayList()
+
+        Thread() {
+            Runnable {
+                val inputStream = assets.open("words.txt")
+                val reader = BufferedReader(InputStreamReader(inputStream))
+
+                var line = reader.readLine()
+                while (line != null) {
+                    wordslist.add(line)
+                    line = reader.readLine()
+                }
+
+                isDictionaryRead = true
+            }
+        }.start()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.menu_speech , menu)
+        menuInflater.inflate(R.menu.menu_speech, menu)
         return true
     }
 
@@ -64,6 +85,9 @@ class MainActivity : AppCompatActivity() {
                         output!!.text = result[0]
                         for (i in 0 until result.size)
                             Log.i("Result" , result[i])
+                        var i = 0
+                        while (!isDictionaryRead)
+                            Log.i("Value of i" , "" + i++)
                     }
         }
         super.onActivityResult(requestCode, resultCode, data)
