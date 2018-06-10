@@ -13,39 +13,24 @@ import android.view.View
 import java.util.*
 import android.util.Log
 import android.widget.TextView
+import com.afollestad.materialdialogs.MaterialDialog
 import me.sparker0i.speechcorrection.R
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import kotlin.collections.ArrayList
+import me.sparker0i.speechcorrection.app.SpeechApp
 
 
 class MainActivity : AppCompatActivity() {
 
     val REQ_CODE_SPEECH_INPUT = 100
     var output: TextView? = null
-    var isDictionaryRead = false
-    lateinit var wordslist : ArrayList<String>
+    lateinit var app : SpeechApp
+    lateinit var dialog: MaterialDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         output = findViewById(R.id.output)
-        wordslist = ArrayList()
 
-        Thread() {
-            Runnable {
-                val inputStream = assets.open("words.txt")
-                val reader = BufferedReader(InputStreamReader(inputStream))
-
-                var line = reader.readLine()
-                while (line != null) {
-                    wordslist.add(line)
-                    line = reader.readLine()
-                }
-
-                isDictionaryRead = true
-            }
-        }.start()
+        app = application as SpeechApp
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -56,7 +41,14 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         val id = item?.itemId
         when(id) {
-            R.id.menu_option_speech -> invokeSpeech()
+            R.id.menu_option_speech -> {
+                dialog = MaterialDialog.Builder(this)
+                        .title("Please Wait")
+                        .content("Loading from the Dictionary")
+                        .progress(true , 0)
+                        .build()
+                invokeSpeech()
+            }
         }
         return super.onOptionsItemSelected(item)
     }
@@ -85,9 +77,11 @@ class MainActivity : AppCompatActivity() {
                         output!!.text = result[0]
                         for (i in 0 until result.size)
                             Log.i("Result" , result[i])
-                        var i = 0
-                        while (!isDictionaryRead)
-                            Log.i("Value of i" , "" + i++)
+
+                        dialog.show()
+                        while (!app.isDictionaryRead)
+                        {}
+                        dialog.hide()
                     }
         }
         super.onActivityResult(requestCode, resultCode, data)
