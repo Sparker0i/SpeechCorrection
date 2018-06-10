@@ -14,23 +14,34 @@ import java.util.*
 import android.util.Log
 import android.widget.TextView
 import com.afollestad.materialdialogs.MaterialDialog
+import me.sparker0i.speechcorrection.ObservedObject
 import me.sparker0i.speechcorrection.R
 import me.sparker0i.speechcorrection.app.SpeechApp
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity(private val REQ_CODE_SPEECH_INPUT: Int = 100) : AppCompatActivity() , Observer{
+    override fun update(o: Observable?, arg: Any?) {
+        (o as ObservedObject).printVal()
+        dialog.hide()
+    }
 
-    val REQ_CODE_SPEECH_INPUT = 100
-    var output: TextView? = null
-    lateinit var app : SpeechApp
-    lateinit var dialog: MaterialDialog
+    private var output: TextView? = null
+    private lateinit var app : SpeechApp
+    private lateinit var dialog: MaterialDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         output = findViewById(R.id.output)
 
+        dialog = MaterialDialog.Builder(this)
+                .title("Please Wait")
+                .content("Loading from the Dictionary")
+                .progress(true , 0)
+                .build()
+
         app = application as SpeechApp
+        app.isDictionaryRead.addObserver(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -42,11 +53,6 @@ class MainActivity : AppCompatActivity() {
         val id = item?.itemId
         when(id) {
             R.id.menu_option_speech -> {
-                dialog = MaterialDialog.Builder(this)
-                        .title("Please Wait")
-                        .content("Loading from the Dictionary")
-                        .progress(true , 0)
-                        .build()
                 invokeSpeech()
             }
         }
@@ -70,19 +76,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
-            REQ_CODE_SPEECH_INPUT ->
-                    if (resultCode == Activity.RESULT_OK && null != data) {
-                        val result = data
-                                .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                        output!!.text = result[0]
-                        for (i in 0 until result.size)
-                            Log.i("Result" , result[i])
+            REQ_CODE_SPEECH_INPUT -> {
+                if (resultCode == Activity.RESULT_OK && null != data) {
+                    val result = data
+                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+                    output!!.text = result[0]
+                    for (i in 0 until result.size)
+                        Log.i("Result", result[i])
 
-                        dialog.show()
-                        while (!app.isDictionaryRead)
-                        {}
-                        dialog.hide()
-                    }
+                    dialog.show()
+                    var i = 0
+                }
+            }
         }
         super.onActivityResult(requestCode, resultCode, data)
     }

@@ -2,11 +2,12 @@ package me.sparker0i.speechcorrection.app
 
 import android.app.Application
 import android.util.Log
+import me.sparker0i.speechcorrection.ObservedObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
 class SpeechApp: Application() {
-    var isDictionaryRead = false
+    var isDictionaryRead = ObservedObject(false)
     lateinit var wordslist : ArrayList<String>
 
     override fun onCreate() {
@@ -28,7 +29,7 @@ class SpeechApp: Application() {
             wordslist.add(line)
             line = reader.readLine()
         }
-        isDictionaryRead = true
+        isDictionaryRead.setVal(true)
     }
 
     fun displaySize() {
