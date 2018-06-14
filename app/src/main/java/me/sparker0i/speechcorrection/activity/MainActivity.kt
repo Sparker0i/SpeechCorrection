@@ -42,6 +42,7 @@ class MainActivity(private val REQ_CODE_SPEECH_INPUT: Int = 100) : AppCompatActi
 
         app = application as SpeechApp
         app.isDictionaryRead.addObserver(this)
+        app.asyncReadDictionary()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

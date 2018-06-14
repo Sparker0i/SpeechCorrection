@@ -7,16 +7,17 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 
 class SpeechApp: Application() {
-    var isDictionaryRead = ObservedObject(false)
+    var isDictionaryRead = ObservedObject()
     lateinit var wordslist : ArrayList<String>
 
     override fun onCreate() {
         super.onCreate()
         wordslist = ArrayList()
+    }
 
-        Thread {
-            execute()
-        }.start()
+    fun asyncReadDictionary() {
+        if (!isDictionaryRead.value)
+            Thread { execute() }.start()
     }
 
     fun execute() {
@@ -29,7 +30,7 @@ class SpeechApp: Application() {
             wordslist.add(line)
             line = reader.readLine()
         }
-        isDictionaryRead.setVal(true)
+        isDictionaryRead.value = (true)
     }
 
     fun displaySize() {
