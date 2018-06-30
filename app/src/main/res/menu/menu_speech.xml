@@ -5,5 +5,6 @@
     <item android:title="@string/menu_option_speech"
         android:id="@+id/menu_option_speech"
         android:icon="@drawable/ic_mic"
+        app:showAsAction="ifRoom"
         />
 </menu>

@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import java.util.*
 import android.R.attr.data
+import android.util.Log
 import android.widget.TextView
 
 
@@ -61,7 +62,8 @@ class MainActivity : AppCompatActivity() {
                         val result = data
                                 .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                         output!!.text = result[0]
-
+                        for (i in 0 until result.size)
+                            Log.i("Result" , result[i])
                     }
         }
         super.onActivityResult(requestCode, resultCode, data)
