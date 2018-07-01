@@ -22,29 +22,33 @@ import me.sparker0i.speechcorrection.app.SpeechApp
 
 
 class MainActivity(private val REQ_CODE_SPEECH_INPUT: Int = 100) : AppCompatActivity() , Observer{
-    override fun update(o: Observable?, arg: Any?) {
-        (o as ObservedObject).printVal()
-        dialog.hide()
-    }
-
     private var output: TextView? = null
     private lateinit var app : SpeechApp
-    private lateinit var dialog: MaterialDialog
+    private var dialog: MaterialDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         output = findViewById(R.id.output)
 
-        dialog = MaterialDialog.Builder(this)
-                .title("Please Wait")
-                .content("Loading from the Dictionary")
-                .progress(true , 0)
-                .build()
+        createDialog()
 
         app = application as SpeechApp
         app.isDictionaryRead.addObserver(this)
         app.asyncReadDictionary()
+    }
+
+    fun createDialog() {
+        dialog = MaterialDialog.Builder(this)
+                    .title("Please Wait")
+                    .content("Loading from the Dictionary")
+                    .progress(true , 0)
+                    .build()
+    }
+
+    override fun update(o: Observable?, arg: Any?) {
+        (o as ObservedObject).printVal()
+        runOnUiThread(Runnable { dialog!!.hide() })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -87,8 +91,8 @@ class MainActivity(private val REQ_CODE_SPEECH_INPUT: Int = 100) : AppCompatActi
                     for (i in 0 until result.size)
                         Log.i("Result", result[i])
 
-                    dialog.show()
-
+                    if (!app.isDictionaryRead.value)
+                        dialog!!.show()
                 }
             }
         }
@@ -96,13 +100,13 @@ class MainActivity(private val REQ_CODE_SPEECH_INPUT: Int = 100) : AppCompatActi
     }
 
     fun process(result: String) {
-        var array = result.split(" ")
-        var builder = StringBuilder()
+        val array = result.split(" ")
+        val builder = StringBuilder()
         for (i in 0 until array.size) {
             if (array[i].toLowerCase() in app.wordslist)
-                builder.append("<font color='#00ff00'>" + array[i] + "</font> ")
+                builder.append(array[i] + " ")
             else
-                builder.append("<font color='#ff0000'>" + array[i] + "</font> ")
+                builder.append("<font color='red'>" + array[i] + "</font> ")
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
             output!!.text = Html.fromHtml(builder.toString() , Html.FROM_HTML_MODE_LEGACY)
