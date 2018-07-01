@@ -6,6 +6,13 @@ import me.sparker0i.speechcorrection.ObservedObject
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
+/**
+ * SpeechApp is the entry point of the Application.
+ * This class is invoked even before the start of any Activity.
+ * All activities in the app will share the same child of this Application class
+ *
+ * In this case SpeechApp extends android.app.Application class
+ */
 class SpeechApp: Application() {
     var isDictionaryRead = ObservedObject()
     lateinit var wordslist : ArrayList<String>
@@ -20,7 +27,7 @@ class SpeechApp: Application() {
             Thread { execute() }.start()
     }
 
-    fun execute() {
+    private fun execute() {
         val inputStream = assets.open("words.txt")
         val reader = BufferedReader(InputStreamReader(inputStream))
 
@@ -31,9 +38,5 @@ class SpeechApp: Application() {
             line = reader.readLine()
         }
         isDictionaryRead.value = (true)
-    }
-
-    fun displaySize() {
-        System.out.println(wordslist.size)
     }
 }

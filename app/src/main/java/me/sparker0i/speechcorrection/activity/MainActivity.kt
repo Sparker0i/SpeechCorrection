@@ -36,19 +36,22 @@ class MainActivity(private val REQ_CODE_SPEECH_INPUT: Int = 100) : AppCompatActi
         app = application as SpeechApp
         app.isDictionaryRead.addObserver(this)
         app.asyncReadDictionary()
+        if (!app.isDictionaryRead.value)
+            dialog!!.show()
     }
 
     fun createDialog() {
         dialog = MaterialDialog.Builder(this)
-                    .title("Please Wait")
-                    .content("Loading from the Dictionary")
-                    .progress(true , 0)
-                    .build()
+                .title("Please Wait")
+                .content("Loading from the Dictionary")
+                .progress(true , 0)
+                .cancelable(false)
+                .build()
     }
 
     override fun update(o: Observable?, arg: Any?) {
         (o as ObservedObject).printVal()
-        runOnUiThread(Runnable { dialog!!.hide() })
+        runOnUiThread(Runnable { dialog!!.dismiss() })
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -88,11 +91,6 @@ class MainActivity(private val REQ_CODE_SPEECH_INPUT: Int = 100) : AppCompatActi
                     val result = data
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
                     process(result[0])
-                    for (i in 0 until result.size)
-                        Log.i("Result", result[i])
-
-                    if (!app.isDictionaryRead.value)
-                        dialog!!.show()
                 }
             }
         }
