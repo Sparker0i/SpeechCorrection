@@ -3,10 +3,12 @@ package me.sparker0i.speechcorrection.activity
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.speech.RecognizerIntent
 import android.support.design.widget.Snackbar
+import android.text.Html
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -81,15 +83,30 @@ class MainActivity(private val REQ_CODE_SPEECH_INPUT: Int = 100) : AppCompatActi
                 if (resultCode == Activity.RESULT_OK && null != data) {
                     val result = data
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
-                    output!!.text = result[0]
+                    process(result[0])
                     for (i in 0 until result.size)
                         Log.i("Result", result[i])
 
                     dialog.show()
-                    var i = 0
+
                 }
             }
         }
         super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    fun process(result: String) {
+        var array = result.split(" ")
+        var builder = StringBuilder()
+        for (i in 0 until array.size) {
+            if (array[i].toLowerCase() in app.wordslist)
+                builder.append("<font color='#00ff00'>" + array[i] + "</font> ")
+            else
+                builder.append("<font color='#ff0000'>" + array[i] + "</font> ")
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            output!!.text = Html.fromHtml(builder.toString() , Html.FROM_HTML_MODE_LEGACY)
+        else
+            output!!.text = Html.fromHtml(builder.toString())
     }
 }
